@@ -41,11 +41,13 @@ class MyApp extends StatelessWidget {
               onGenerateRoute: RouteNames.generateRoutes,
               onUnknownRoute: (RouteSettings settings) {
                 return MaterialPageRoute(
-                  builder: (_) => Scaffold(
-                    body: FetchErrorText(
-                        text: 'No route defined for ${settings.name}',
-                        textColor: redColor),
-                  ),
+                  builder:
+                      (_) => Scaffold(
+                        body: FetchErrorText(
+                          text: 'No route defined for ${settings.name}',
+                          textColor: redColor,
+                        ),
+                      ),
                 );
               },
               theme: MyTheme.theme,

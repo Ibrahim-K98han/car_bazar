@@ -4,7 +4,6 @@ import '../../presentation/errors/exception.dart';
 import '../../utils/k_string.dart';
 import '../model/auth/user_response_model.dart';
 
-
 abstract class LocalDataSources {
   bool checkOnBoarding();
 
@@ -40,14 +39,16 @@ class LocalDataSourcesImpl implements LocalDataSources {
   @override
   Future<bool> cacheUserResponse(UserResponseModel userResponseModel) {
     return sharedPreferences.setString(
-        KString.getExistingUserResponseKey, 
-        userResponseModel.toJson());
+      KString.getExistingUserResponseKey,
+      userResponseModel.toJson(),
+    );
   }
 
   @override
   UserResponseModel getExistingUserInfo() {
-    final jsonData =
-        sharedPreferences.getString(KString.getExistingUserResponseKey);
+    final jsonData = sharedPreferences.getString(
+      KString.getExistingUserResponseKey,
+    );
     if (jsonData != null) {
       return UserResponseModel.fromJson(jsonData);
     } else {
