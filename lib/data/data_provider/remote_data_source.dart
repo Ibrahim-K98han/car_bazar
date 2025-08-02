@@ -8,6 +8,8 @@ abstract class RemoteDataSource {
   Future getWebsiteSetup(Uri uri);
 
   Future login(LoginStateModel body);
+
+  Future logout(Uri uri);
 }
 
 typedef CallClientMethod = Future<http.Response> Function();
@@ -46,6 +48,15 @@ class RemoteDataSourceImpl extends RemoteDataSource {
 
   @override
   Future getWebsiteSetup(Uri uri) async {
+    final clientMethod = client.get(uri, headers: headers);
+    final responseJsonBody = await NetworkParser.callClientWithCatchException(
+      () => clientMethod,
+    );
+    return responseJsonBody;
+  }
+
+  @override
+  Future logout(Uri uri) async {
     final clientMethod = client.get(uri, headers: headers);
     final responseJsonBody = await NetworkParser.callClientWithCatchException(
       () => clientMethod,

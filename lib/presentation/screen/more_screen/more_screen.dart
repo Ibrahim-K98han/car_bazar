@@ -1,6 +1,10 @@
+import 'package:car_bazar/data/model/auth/login_state_model.dart';
+import 'package:car_bazar/logic/bloc/login/login_bloc.dart';
+import 'package:car_bazar/logic/bloc/login/login_state.dart';
 import 'package:car_bazar/widgets/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../logic/bloc/login/login_event.dart';
 import '../../../routes/route_names.dart';
 import '../../../utils/constraints.dart';
 import '../../../utils/k_images.dart';
@@ -375,19 +379,130 @@ class _MoreScreenState extends State<MoreScreen> {
                   //   Utils.showSnackBarWithLogin(context);
                   // }
                 },
-                child: Container(
-                  width: double.infinity,
-                  padding: Utils.symmetric(h: 24.0, v: 14.0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: redColor),
-                  ),
-                  child: CustomText(
-                    text: 'lo',
-                    fontWeight: FontWeight.w500,
-                    fontSize: 16.0,
-                    textAlign: TextAlign.center,
-                    color: redColor,
+                child: GestureDetector(
+                  onTap: () {
+                    if (Utils.isLoggedIn(context)) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            backgroundColor: whiteColor,
+                            insetPadding: Utils.symmetric(),
+                            child: Padding(
+                              padding: Utils.symmetric(h: 24.0, v: 32.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const CustomImage(path: KImages.logout),
+                                  Utils.verticalSpace(18.0),
+                                  const CustomText(
+                                    text: "Logout",
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  Utils.verticalSpace(10.0),
+                                  const CustomText(
+                                    text:
+                                        "Are you sure you want to log out from Carsbnb?",
+                                    fontSize: 16.0,
+                                    color: sTextColor,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  Utils.verticalSpace(20.0),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              4.0,
+                                            ),
+                                            color: whiteColor,
+                                            border: Border.all(
+                                              color: borderColor,
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: Utils.symmetric(
+                                              h: 30.0,
+                                              v: 16.0,
+                                            ),
+                                            child: const CustomText(
+                                              text: "Cancel",
+                                              fontSize: 16.0,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Utils.horizontalSpace(14.0),
+                                      BlocListener<LoginBloc, LoginStateModel>(
+                                        listener: (context, state) {
+                                          if (state.loginState
+                                              is LoginStateLogoutLoaded) {
+                                            Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              RouteNames.loginScreen,
+                                              (route) => false,
+                                            );
+                                          }
+                                        },
+                                        child: GestureDetector(
+                                          onTap: () {
+                                            context.read<LoginBloc>().add(
+                                              const LoginEventLogout(),
+                                            );
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(4.0),
+                                              color: redColor,
+                                            ),
+                                            child: Padding(
+                                              padding: Utils.symmetric(
+                                                h: 30.0,
+                                                v: 16.0,
+                                              ),
+                                              child: const CustomText(
+                                                text: "Logout",
+                                                color: whiteColor,
+                                                fontSize: 16.0,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    } else {
+                      Utils.showSnackBarWithLogin(context);
+                    }
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    padding: Utils.symmetric(h: 24.0, v: 14.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(color: redColor),
+                    ),
+                    child: CustomText(
+                      text: 'LogOut',
+                      fontWeight: FontWeight.w500,
+                      fontSize: 16.0,
+                      textAlign: TextAlign.center,
+                      color: redColor,
+                    ),
                   ),
                 ),
               ),
@@ -426,10 +541,8 @@ class DrawerItem extends StatelessWidget {
         children: [
           if (isAuth) ...[
             GestureDetector(
-              onTap:() {
-                
-              },
-                 
+              onTap: () {},
+
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
