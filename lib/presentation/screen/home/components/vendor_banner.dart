@@ -1,38 +1,44 @@
-
 import 'package:car_bazar/widgets/custom_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../data/data_provider/remote_url.dart';
+import '../../../../data/model/home/home_model.dart';
+import '../../../../logic/bloc/login/login_bloc.dart';
+import '../../../../routes/route_names.dart';
 import '../../../../utils/constraints.dart';
 import '../../../../utils/k_images.dart';
+import '../../../../utils/language_string.dart';
 import '../../../../utils/utils.dart';
 import '../../../../widgets/custom_image.dart';
 import '../../../../widgets/primary_button.dart';
 
 class VendorBannerView extends StatelessWidget {
-  const VendorBannerView({super.key});
+  const VendorBannerView({super.key, required this.joinDealer});
 
+  final JoinDealer joinDealer;
 
   @override
   Widget build(BuildContext context) {
+    final login = context.read<LoginBloc>();
     return SliverPadding(
       padding: Utils.symmetric(h: 0.0, v: 0.0),
       sliver: SliverToBoxAdapter(
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-             ClipRRect(
+            ClipRRect(
                 child: CustomImage(
-              path: KImages.appIcon,
-              fit: BoxFit.cover,
-              height: 190.0,
-              width: double.infinity,
-            )),
+                  path: RemoteUrls.imageUrl(joinDealer.image),
+                  fit: BoxFit.cover,
+                  height: 190.0,
+                  width: double.infinity,
+                )),
             Positioned(
                 top: 24.0,
                 left: 50.0,
                 right: 50.0,
                 child: CustomText(
-                  text: 'joinDealer.shortTitle',
+                  text: joinDealer.shortTitle,
                   fontWeight: FontWeight.w700,
                   fontSize: 16.0,
                   color: whiteColor,
@@ -43,7 +49,7 @@ class VendorBannerView extends StatelessWidget {
                 left: 50.0,
                 right: 50.0,
                 child: CustomText(
-                  text: 'joinDealer.title',
+                  text: joinDealer.title,
                   fontWeight: FontWeight.w700,
                   fontSize: 14.0,
                   color: whiteColor,
@@ -55,11 +61,11 @@ class VendorBannerView extends StatelessWidget {
               left: 100.0,
               child: GestureDetector(
                 onTap: (){
-                  // if(login.isLoggedIn){
-                  //   Utils.showSnackBar(context, "You are already Vendor");
-                  // }else{
-                  //   Navigator.pushNamed(context, RouteNames.registrationScreen);
-                  // }
+                  if(login.isLoggedIn){
+                    Utils.showSnackBar(context, "You are already Vendor");
+                  }else{
+                    Navigator.pushNamed(context, RouteNames.registrationScreen);
+                  }
                 },
                 child: Container(
                   padding: Utils.symmetric(h: 26.0, v: 12.0),
@@ -67,7 +73,7 @@ class VendorBannerView extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10.0),
                       color: primaryColor),
                   child:  CustomText(
-                    text: 'fff',
+                    text: Utils.translatedText(context, Language.becomeADealer),
                     color: whiteColor,
                     textAlign: TextAlign.center,
                   ),

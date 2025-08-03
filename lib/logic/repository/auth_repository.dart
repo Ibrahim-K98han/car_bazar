@@ -9,6 +9,8 @@ import 'package:dartz/dartz.dart';
 abstract class AuthRepository {
   Future<Either<dynamic, UserResponseModel>> login(LoginStateModel body);
 
+  Future<Either<Failure, String>> logout(Uri uri);
+
   Either<Failure, UserResponseModel> getExistingUserInfo();
 }
 
@@ -42,6 +44,17 @@ class AuthRepositoryImpl implements AuthRepository {
       return Right(result);
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> logout(Uri uri) async {
+    try {
+      final logout = await remoteDataSources.logout(uri);
+      localDataSources.clearUserResponse();
+      return Right(logout['message']);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message, e.statusCode));
     }
   }
 }

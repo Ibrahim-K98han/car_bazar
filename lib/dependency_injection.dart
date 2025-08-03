@@ -9,6 +9,9 @@ import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/data_provider/local_data_source.dart';
+import 'logic/cubit/car_details/car_details_cubit.dart';
+import 'logic/cubit/home/home_cubit.dart';
+import 'logic/repository/home_repository.dart';
 
 class DInjector {
   static late final SharedPreferences _sharedPreferences;
@@ -45,6 +48,9 @@ class DInjector {
             localDataSources: context.read(),
           ),
     ),
+    RepositoryProvider<HomeRepository>(
+      create: (context) => HomeRepositoryImpl(remoteDataSource: context.read()),
+    ),
   ];
   static final blocProviders = <BlocProvider>[
     BlocProvider<InternetStatusBloc>(create: (context) => InternetStatusBloc()),
@@ -53,6 +59,21 @@ class DInjector {
     ),
     BlocProvider<LoginBloc>(
       create: (context) => LoginBloc(repository: context.read()),
+    ),
+    BlocProvider<HomeCubit>(
+      create:
+          (context) => HomeCubit(
+            loginBloc: context.read(),
+            homeRepository: context.read(),
+          ),
+    ),
+
+    BlocProvider<CarDetailsCubit>(
+      create:
+          (context) => CarDetailsCubit(
+            homeRepository: context.read(),
+            loginBloc: context.read(),
+          ),
     ),
   ];
 }

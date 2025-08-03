@@ -2,12 +2,16 @@ import 'package:car_bazar/utils/k_images.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../data/data_provider/remote_url.dart';
+import '../../../../data/model/home/home_model.dart';
 import '../../../../utils/constraints.dart';
 import '../../../../utils/utils.dart';
 import '../../../../widgets/custom_image.dart';
 
 class SliderSection extends StatefulWidget {
-  const SliderSection({super.key});
+  const SliderSection({super.key, required this.slider});
+
+  final List<Sliders> slider;
 
   @override
   State<SliderSection> createState() => _SliderSectionState();
@@ -42,8 +46,8 @@ class _SliderSectionState extends State<SliderSection> {
                     onPageChanged: callbackFunction,
                     scrollDirection: Axis.horizontal,
                   ),
-                  items: [
-                    Container(
+                  items: widget.slider.map((e) {
+                    return Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0)),
                       //margin: Utils.symmetric(h: 10.0),
@@ -51,13 +55,13 @@ class _SliderSectionState extends State<SliderSection> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
                         child: CustomImage(
-                          path: KImages.addCar,
+                          path: RemoteUrls.imageUrl(e.image),
                           fit: BoxFit.fill,
                         ),
                         // child: Image.network(e.image),
                       ),
-                    )
-                  ]
+                    );
+                  }).toList(),
                 ),
                 Positioned(
                     bottom: 10.0,
@@ -82,7 +86,7 @@ class _SliderSectionState extends State<SliderSection> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-       5,
+        widget.slider.length,
             (index) {
           final i = _currentIndex == index;
           return AnimatedContainer(

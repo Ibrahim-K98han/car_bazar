@@ -11,6 +11,8 @@ import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import '../logic/bloc/login/login_bloc.dart';
+import '../logic/cubit/website_setup/website_setup_cubit.dart';
 import '../routes/route_names.dart';
 import '../widgets/custom_text.dart';
 import 'constraints.dart';
@@ -29,6 +31,16 @@ class Utils {
   static Uri tokenWithCode(String url, String token, String langCode) {
     return Uri.parse('$url?')
         .replace(queryParameters: {'token': token, 'lang_code': langCode});
+  }
+
+
+  static bool isLoggedIn(BuildContext context) {
+    final login = context.read<LoginBloc>();
+    if(login.userInformation != null){
+      return true;
+    }else{
+      return false;
+    }
   }
 
   static Uri onlyCode(String url,  String langCode) {
@@ -373,8 +385,44 @@ class Utils {
     }
   }
 
+  static String translatedText(BuildContext context, String key,
+      [bool lower = false]) {
+    final webSetting = context.read<WebsiteSetupCubit>().setting;
+    if (lower == true) {
+      if (webSetting != null && webSetting.language![key] != null) {
+        return webSetting.language![key]!.toLowerCase();
+      } else {
+        return key.toLowerCase();
+      }
+    } else {
+      if (webSetting != null && webSetting.language![key] != null) {
+        return '${webSetting.language![key]}';
+      } else {
+        return key;
+      }
+    }
+  }
 
 
+  static void showSnackBarWithLogin(BuildContext context, [String? msg,Color textColor = whiteColor]) {
+    final snackBar = SnackBar(
+      duration: const Duration(milliseconds: 1600),
+      content: CustomText(text: Utils.translatedText(context, msg??'Please login first'), color: textColor),
+      action: SnackBarAction(
+        label: Utils.translatedText(context, 'Login'),
+        onPressed: (){
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            RouteNames.loginScreen,
+                (route) => false,
+          );
+        },
+      ),
+    );
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
 
   static void showSnackBar(BuildContext context, String msg,
       [Color textColor = whiteColor]) {

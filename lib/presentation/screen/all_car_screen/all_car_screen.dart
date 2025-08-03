@@ -278,7 +278,8 @@ class _LoadedDataState extends State<LoadedData> {
                 BuildContext context,
                 int index,
               ) {
-                return PopularCarCard();
+                // return PopularCarCard();
+                return CustomText(text: 'All Cars');
               }, childCount: 5),
             ),
           ),

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:car_bazar/data/data_provider/remote_url.dart';
 import 'package:car_bazar/data/model/auth/login_state_model.dart';
 import 'package:car_bazar/data/model/auth/user_response_model.dart';
 import 'package:car_bazar/logic/bloc/login/login_event.dart';
@@ -57,6 +58,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginStateModel> {
       emit(state.copyWith(isActive: !state.isActive));
     });
     on<LoginEventSubmit>(_loginEvent);
+    on<LoginEventLogout>(_logoutEvent);
     on<LoginEventSaveCredential>(_saveCredential);
 
     final result = _repository.getExistingUserInfo();
@@ -115,6 +117,45 @@ class LoginBloc extends Bloc<LoginEvent, LoginStateModel> {
         final userLoaded = LoginStateLoaded(userResponseModel: success);
         _users = success;
         emit(state.copyWith(loginState: userLoaded));
+      },
+    );
+  }
+
+  Future<void> remoteCredentials() async {
+    final SharedPreferences pref = await SharedPreferences.getInstance();
+    pref.remove('email');
+    pref.remove('password');
+  }
+
+  Future<void> _logoutEvent(
+    LoginEventLogout event,
+    Emitter<LoginStateModel> emit,
+  ) async {
+    emit(state.copyWith(loginState: LoginStateLogoutLoading()));
+    final url = Uri.parse(RemoteUrls.logout).replace(
+      queryParameters: {
+        'token': userInformation!.accessToken,
+        'lang_code': state.languageCode,
+      },
+    );
+    final result = await _repository.logout(url);
+    result.fold(
+      (failure) {
+        if (failure.statusCode == 500) {
+          var loadedData = LoginStateLogoutLoaded('logout success', 200);
+          emit(state.copyWith(loginState: loadedData));
+        } else {
+          final errors = LoginStateLogoutError(
+            failure.message,
+            failure.statusCode,
+          );
+          emit(state.copyWith(loginState: errors));
+        }
+      },
+      (logout) {
+        _users = null;
+        emit(state.copyWith(loginState: LoginStateLogoutLoaded(logout, 200)));
+        //remoteCredentials();
       },
     );
   }
