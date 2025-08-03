@@ -2,12 +2,16 @@ import 'package:car_bazar/utils/k_images.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../../../data/data_provider/remote_url.dart';
+import '../../../../data/model/home/home_model.dart';
 import '../../../../utils/constraints.dart';
 import '../../../../utils/utils.dart';
 import '../../../../widgets/custom_image.dart';
 
 class BannerSliderSection extends StatefulWidget {
-  const BannerSliderSection({super.key});
+  const BannerSliderSection({super.key, required this.offers});
+
+  final List<AdsBanners> offers;
 
   @override
   State<BannerSliderSection> createState() => _BannerSliderSectionState();
@@ -17,13 +21,14 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
   int _currentIndex = 1;
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
     return SliverToBoxAdapter(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 20.w),
         child: Column(
           children: [
             //SliverToBoxAdapter(child: Utils.verticalSpace(size.height * 0.06)),
-           // Utils.verticalSpace(size.height * 0.05),
+            // Utils.verticalSpace(size.height * 0.05),
             Stack(
               children: [
                 CarouselSlider(
@@ -41,8 +46,8 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
                     onPageChanged: callbackFunction,
                     scrollDirection: Axis.horizontal,
                   ),
-                  items:[
-                    Container(
+                  items: widget.offers.map((e) {
+                    return Container(
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.0)),
                       //margin: Utils.symmetric(h: 10.0),
@@ -50,13 +55,13 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(10.0),
                         child: CustomImage(
-                          path: KImages.addCar,
+                          path: RemoteUrls.imageUrl(e.image),
                           fit: BoxFit.fill,
                         ),
                         // child: Image.network(e.image),
                       ),
-                    )
-                  ]
+                    );
+                  }).toList(),
                 ),
                 Positioned(
                     bottom: 10.0,
@@ -81,7 +86,7 @@ class _BannerSliderSectionState extends State<BannerSliderSection> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(
-        4,
+        widget.offers.length,
             (index) {
           final i = _currentIndex == index;
           return AnimatedContainer(

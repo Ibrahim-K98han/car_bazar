@@ -1,6 +1,13 @@
 import 'package:car_bazar/presentation/screen/home/components/banner_slider_section.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../logic/cubit/home/home_cubit.dart';
+import '../../../logic/cubit/home/home_state.dart';
+import '../../../logic/cubit/language_code_state.dart';
 import '../../../utils/utils.dart';
+import '../../../widgets/fetch_error_text.dart';
+import '../../../widgets/loading_widget.dart';
+import '../../../widgets/page_refresh.dart';
 import 'components/brand_screen.dart';
 import 'components/feature_rent_car.dart';
 import 'components/home_app_bar.dart';
@@ -17,17 +24,61 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late HomeCubit hCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    hCubit = context.read<HomeCubit>();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: LoadedHomeData());
+    return Scaffold(
+      body: PageRefresh(
+        onRefresh: ()async{
+          hCubit.getHomeData();
+        },
+        child: BlocConsumer<HomeCubit, LanguageCodeState>(
+            listener: (context, state) {
+              final home = state.homeState;
+              if (home is HomeStateError) {
+                if (home.statusCode == 503 || hCubit.homeModel == null) {
+                  hCubit.getHomeData();
+                }
+              }
+            }, builder: (context, state) {
+          final home = state.homeState;
+          if (home is HomeStateLoading) {
+            return const LoadingWidget();
+          } else if (home is HomeStateError) {
+            if (home.statusCode == 503 || hCubit.homeModel != null) {
+              return const LoadedHomeData();
+            } else {
+              return FetchErrorText(text: home.message);
+            }
+          } else if (home is HomeStateLoaded) {
+            return const LoadedHomeData();
+          }
+          if (hCubit.homeModel != null) {
+            return const LoadedHomeData();
+          } else {
+            return const FetchErrorText(text: 'Something Went Wrong');
+          }
+        }),
+      ),
+    );
   }
 }
 
 class LoadedHomeData extends StatelessWidget {
-  const LoadedHomeData({super.key});
+  const LoadedHomeData({
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final hCubit = context.read<HomeCubit>();
     return Container(
       decoration: const BoxDecoration(
         boxShadow: [
@@ -36,25 +87,42 @@ class LoadedHomeData extends StatelessWidget {
             blurRadius: 30,
             offset: Offset(0, 2),
             spreadRadius: 0,
-          ),
+          )
         ],
       ),
       child: CustomScrollView(
         slivers: [
           const HomeAppBar(),
-          SliderSection(),
-          BrandScreen(),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
-          FeatureCarScreen(),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
-          SliverToBoxAdapter(child: BannerSliderSection()),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
-          TopDealerSection(),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
-          VendorBannerView(),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
-          PopularCarScreen(),
-          SliverToBoxAdapter(child: Utils.verticalSpace(26.0)),
+          SliderSection(slider: hCubit.homeModel!.sliders!),
+          BrandScreen(brands: hCubit.homeModel!.brands!),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
+          FeatureCarScreen(featuredCars: hCubit.homeModel!.featuredCars!),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
+
+          hCubit.homeModel!.adsBanners!.isEmpty
+              ? const SliverToBoxAdapter(child: SizedBox.shrink())
+              : SliverToBoxAdapter(
+            child: BannerSliderSection(offers: hCubit.homeModel!.adsBanners!),
+          ),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
+          TopDealerSection(dealers: hCubit.homeModel!.dealers!,),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
+          VendorBannerView(joinDealer: hCubit.homeModel!.joinDealer!),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
+          PopularCarScreen(latestCars: hCubit.homeModel!.latestCars!),
+          SliverToBoxAdapter(
+            child: Utils.verticalSpace(26.0),
+          ),
         ],
       ),
     );

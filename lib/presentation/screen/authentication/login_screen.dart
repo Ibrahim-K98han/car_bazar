@@ -58,7 +58,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                   Utils.verticalSpace(16.0),
-
                   BlocBuilder<LoginBloc, LoginStateModel>(
                     builder: (context, state) {
                       final login = state.loginState;
@@ -86,7 +85,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       );
                     },
                   ),
-
                   Utils.verticalSpace(10.0),
                   BlocBuilder<LoginBloc, LoginStateModel>(
                     builder: (context, state) {
@@ -137,11 +135,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                 height: Utils.vSize(24.0),
                                 width: Utils.hSize(24.0),
                                 child: Checkbox(
-                                  activeColor: primaryColor,
+                                  onChanged:
+                                      (v) =>
+                                          loginBloc.add(LoginEventRememberMe()),
                                   value: state.isActive,
-                                  onChanged: (value) {
-                                    loginBloc.add(LoginEventRememberMe());
-                                  },
+                                  activeColor: primaryColor,
                                 ),
                               ),
                               const CustomText(
@@ -187,13 +185,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     builder: (context, login) {
                       final state = login.loginState;
                       if (state is LoginStateLoading) {
-                        return LoadingWidget();
+                        return const LoadingWidget();
                       }
                       return PrimaryButton(
-                        text: 'Login',
+                        text: Utils.translatedText(context, 'Log in'),
                         onPressed: () {
                           Utils.closeKeyBoard(context);
-                          loginBloc.add(LoginEventSubmit());
+                          loginBloc.add(const LoginEventSubmit());
                         },
                       );
                     },

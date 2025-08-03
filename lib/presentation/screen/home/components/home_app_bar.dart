@@ -2,6 +2,9 @@ import 'package:car_bazar/routes/route_names.dart';
 import 'package:car_bazar/utils/k_images.dart';
 import 'package:car_bazar/widgets/circle_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../data/data_provider/remote_url.dart';
+import '../../../../logic/bloc/login/login_bloc.dart';
 import '../../../../utils/constraints.dart';
 import '../../../../utils/utils.dart';
 import '../../../../widgets/custom_image.dart';
@@ -15,9 +18,34 @@ class HomeAppBar extends StatefulWidget {
 }
 
 class _HomeAppBarState extends State<HomeAppBar> {
+  // late ProfileCubit profileData;
+  // late CompareCubit compareCubit;
+  late LoginBloc loginBloc;
   late String image;
   late String name;
   late String email;
+
+  @override
+  void initState() {
+    super.initState();
+    _initState();
+  }
+
+  _initState() {
+    // profileData = context.read<ProfileCubit>();
+    loginBloc = context.read<LoginBloc>();
+    image = KImages.profileImage;
+    // compareCubit = context.read<CompareCubit>();
+    // compareCubit.getCompareList();
+    // if (profileData.user != null && profileData.user!.image.isNotEmpty) {
+    //   image = RemoteUrls.imageUrl(profileData.user!.image);
+    // } else {
+    //   image = KImages.profileImage;
+    //   // name = 'user';
+    //   // email = 'user@gmail.com';
+    //   //name = "User";
+    // }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,84 +62,100 @@ class _HomeAppBarState extends State<HomeAppBar> {
         clipBehavior: Clip.none,
         children: [
           FlexibleSpaceBar(
-            background: Padding(
-              padding: EdgeInsets.only(top: 55.0, left: 20.0, right: 20.0),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () {},
-                            child: CircleImage(
-                              image: KImages.addCar,
-                              size: 56.0,
-                            ),
-                          ),
-                          Utils.horizontalSpace(8.0),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              CustomText(
-                                maxLine: 2,
-                                text: "Guest",
-                                fontSize: 16.0,
-                                color: whiteColor,
-                                fontFamily: bold700,
-                              ),
-                              Utils.verticalSpace(4.0),
-                              const CustomText(
-                                text: 'Welcome back !',
-                                fontSize: 12.0,
-                                color: whiteColor,
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      GestureDetector(
-                        onTap: () {},
-                        child: Stack(
-                          clipBehavior: Clip.none,
+            titlePadding: Utils.only(top: 55.0, left: 20.0, right: 20.0),
+            title: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            if (Utils.isLoggedIn(context)) {
+                              Navigator.pushNamed(
+                                context,
+                                RouteNames.profileScreen,
+                              );
+                            } else {
+                              Utils.showSnackBarWithLogin(context);
+                            }
+                          },
+                          child: CircleImage(image: image, size: 56.0),
+                        ),
+                        Utils.horizontalSpace(8.0),
+                        Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: whiteColor.withOpacity(0.5),
-                                ),
-                              ),
-                              child: Padding(
-                                padding: Utils.all(value: 16.0),
-                                child: const CustomImage(path: KImages.compare),
-                              ),
+                            CustomText(
+                              maxLine: 2,
+                              text:
+                                  loginBloc.userInformation?.user?.name ??
+                                  "Guest",
+                              fontSize: 16.0,
+                              color: whiteColor,
+                              fontFamily: bold700,
+                              // overflow: TextOverflow.ellipsis,
                             ),
-                            Positioned(
-                              top: -10,
-                              right: -4,
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: whiteColor,
-                                ),
-                                child: Padding(
-                                  padding: Utils.all(value: 8.0),
-                                  child: CustomText(text: '0'),
-                                ),
-                              ),
+                            Utils.verticalSpace(4.0),
+                            const CustomText(
+                              text: 'Welcome back !',
+                              fontSize: 12.0,
+                              color: whiteColor,
                             ),
                           ],
                         ),
+                      ],
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        if (Utils.isLoggedIn(context)) {
+                          Navigator.pushNamed(
+                            context,
+                            RouteNames.compareScreen,
+                          );
+                        } else {
+                          Utils.showSnackBarWithLogin(context);
+                        }
+                      },
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: whiteColor.withOpacity(0.5),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: Utils.all(value: 16.0),
+                              child: const CustomImage(path: KImages.compare),
+                            ),
+                          ),
+                          Positioned(
+                            top: -10,
+                            right: -4,
+                            child: Container(
+                              decoration: const BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: whiteColor,
+                              ),
+                              child: Padding(
+                                padding: Utils.all(value: 8.0),
+                                child: CustomText(text: '0'),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-
           Positioned(
             bottom: -44.0,
             left: 20.0,
@@ -119,7 +163,10 @@ class _HomeAppBarState extends State<HomeAppBar> {
             child: GestureDetector(
               onTap: () {
                 Navigator.pushNamed(context, RouteNames.allCarScreen);
-            
+                // context.read<HomeCubit>().clearFilter();
+                // Navigator.pushNamed(context, RouteNames.popularEventScreen);
+                // final controller = MainController();
+                // controller.naveListener.add(1);
               },
               child: Container(
                 height: Utils.vSize(56.0),

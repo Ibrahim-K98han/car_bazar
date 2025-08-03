@@ -22,6 +22,8 @@ import 'package:car_bazar/presentation/screen/on_boarding/on_boarding_screen.dar
 import 'package:car_bazar/presentation/screen/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 
+import '../data/model/home/home_model.dart';
+
 class RouteNames {
   static const String splashScreen = '/splashScreen';
   static const String onBoardingScreen = '/onBoardingScreen';
@@ -130,9 +132,10 @@ class RouteNames {
         );
 
       case RouteNames.allBrandScreen:
+        final brand = settings.arguments as List<Brands>;
         return MaterialPageRoute(
           settings: settings,
-          builder: (_) => AllBrandScreen(),
+          builder: (_) => AllBrandScreen(brands: brand,),
         );
 
       // case RouteNames.featureCarScreen:
